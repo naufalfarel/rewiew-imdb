@@ -46,6 +46,17 @@ def fix_layer_config(config):
             batch_shape = config.pop('batch_shape')
             if batch_shape and len(batch_shape) > 1:
                 config['batch_input_shape'] = tuple(batch_shape)
+
+        # Normalize dtype config that may come from older Keras versions
+        # Example problematic structure (from your model):
+        # 'dtype': {'module': 'keras', 'class_name': 'DTypePolicy',
+        #           'config': {'name': 'float32'}, 'registered_name': None}
+        # Newer TensorFlow/Keras often expects a simple string like 'float32'.
+        if 'dtype' in config and isinstance(config['dtype'], dict):
+            dtype_cfg = config['dtype']
+            if isinstance(dtype_cfg.get('config'), dict) and 'name' in dtype_cfg['config']:
+                # Replace complex dtype config with plain string
+                config['dtype'] = dtype_cfg['config']['name']
         
         # Recursively fix nested configs
         for key, value in config.items():
