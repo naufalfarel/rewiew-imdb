@@ -120,6 +120,15 @@ def ensure_models_loaded():
     if lstm_model is None or rnn_model is None or word_index is None:
         load_models()
 
+@app.before_first_request
+def _load_models_before_first_request():
+    """
+    Flask hook to make sure models are loaded before the first request is handled.
+    This is important when running under Gunicorn where the `__main__` block
+    is not executed.
+    """
+    ensure_models_loaded()
+
 def preprocess_text(text):
     """Preprocess text untuk prediksi"""
     # Lowercase dan remove special characters
