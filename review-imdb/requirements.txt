@@ -3,11 +3,10 @@ flask==3.0.0
 flask-cors==4.0.0
 
 # TensorFlow untuk load model .h5
-# Note: TensorFlow 2.16+ supports Python 3.12
-# For Python 3.11, use tensorflow==2.15.0
-tensorflow>=2.16.1
+# For Python 3.11 (Railway default), use tensorflow 2.15.0
+tensorflow==2.15.0
 gunicorn==21.2.0
-h5py>=3.11.0
+h5py==3.11.0
 
 # NumPy (required by TensorFlow)
-numpy>=1.26.2
+numpy==1.26.2
