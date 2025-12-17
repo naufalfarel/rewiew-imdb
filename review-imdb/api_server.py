@@ -33,6 +33,9 @@ rnn_model = None
 
 # IMDB word index
 word_index = None
+
+# Last error when trying to load models/word index (for debugging in /health)
+last_load_error: str | None = None
 max_length = 200  # disesuaikan dengan input shape model (128, 200)
 
 def fix_layer_config(config):
@@ -82,8 +85,9 @@ def load_model_compatible(model_path):
                 raise ValueError("Could not find model config in H5 file")
 
 def load_models():
-    global lstm_model, rnn_model, word_index
+    global lstm_model, rnn_model, word_index, last_load_error
     try:
+        last_load_error = None
         # Load models with compatibility fixes
         print("Loading LSTM model...")
         lstm_model = load_model_compatible(os.path.join(MODELS_DIR, 'model_lstm.h5'))
@@ -111,6 +115,7 @@ def load_models():
         print(f"LSTM model input shape: {lstm_model.input_shape}")
         print(f"RNN model input shape: {rnn_model.input_shape}")
     except Exception as e:
+        last_load_error = str(e)
         print(f"Error loading models: {e}")
         import traceback
         traceback.print_exc()
@@ -183,7 +188,8 @@ def health():
     ensure_models_loaded()
     return jsonify({
         'status': 'ok',
-        'models_loaded': lstm_model is not None and rnn_model is not None
+        'models_loaded': lstm_model is not None and rnn_model is not None,
+        'error': last_load_error,
     })
 
 if __name__ == '__main__':
